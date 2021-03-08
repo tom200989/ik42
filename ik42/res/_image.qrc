@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="ik42">/* prefix不要以下划线开头 */
+        <file>ik42_click.png</file>
+        <file>ik42_close.png</file>
+        <file>ik42_error.png</file>
+        <file>ik42_loading.png</file>
+        <file>ik42_next.png</file>
+        <file>ik42_next_hover.png</file>
+        <file>ik42_pull_arrow.png</file>
+        <file>ik42_pull_arrow_pressed.png</file>
+        <file>ik42_success.png</file>
+        <file>ik42_timeout.png</file>
+        <file>ik42_u_pan.png</file>
+        <file>ik42_back.png</file>
+        <file>ik42_back_pressed.png</file>
+    </qresource>
+</RCC>
