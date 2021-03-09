@@ -11,11 +11,11 @@ from ik42.res._image_rcc import *
 from ik42.ik42_utils import *
 import requests
 import json
-from Crypto.Cipher import AES
-import base64
 import hashlib
+from ik42.ik42_aes import *
 
 responceCodeField = "responceCode"
+imeiCode = "imeiCode"
 testApi = False  # 测试
 
 class ik42_http(QThread):
@@ -24,7 +24,8 @@ class ik42_http(QThread):
         super().__init__(parent)
         self.imei = imei
         self.responceCodeField = "responceCode"
-        self.timeout_tick = 15
+        self.imeiCode = "imeiCode"
+        self.timeout_tick = 2
         self.STATU_CODE_TIMEOUT = 707
         self.STATU_CODE_OK = 200
         self.host = "192.168.2.1"
@@ -42,15 +43,16 @@ class ik42_http(QThread):
     def run(self) -> None:
         self.post(self.imei)
 
+    # 刷新IMEI号
+    def refresh(self, new_imei):
+        self.imei = new_imei
+
     # AES MD5 加密
     def encryByAesMd5(self, imei):
         # 先进行AES加密
-        cipher  = AES.new(self.aes_key.encode('utf8'), AES.MODE_CBC, self.aes_iv.encode('utf8'))
-        encrypt_imei = cipher.encrypt(imei.encode('utf8'))
-        b64_imei = base64.b64encode(encrypt_imei)
-        enc_imei = b64_imei.decode('utf8')
+        aes_imei = AES_Tool().encrypt_ECB(self.aes_key, imei)
         # 在MD5加密
-        md5_ecn_imei = hashlib.md5(enc_imei).hexdigest()
+        md5_ecn_imei = hashlib.md5(aes_imei.encode('utf8')).hexdigest()
         return md5_ecn_imei
 
     def post(self, imei):
@@ -67,6 +69,7 @@ class ik42_http(QThread):
         }
         # 对IMEI号进行加密
         imei = self.encryByAesMd5(imei)
+        print(imei)
         # 指定请求参数
         paramStr = '{"jsonrpc":"2.0","method":"' + self.apiImpl + '","params":{"imei":"' + imei + '"},"id":"5.4"}'
         # 转换成json
@@ -82,17 +85,19 @@ class ik42_http(QThread):
                 textDict = json.loads(textstr)
             # 填充响应码
             textDict[self.responceCodeField] = responce.status_code
+            textDict[self.imeiCode] = self.imei
 
         except Exception as error:
             print(error)
             textDict[self.responceCodeField] = self.STATU_CODE_TIMEOUT  # 超时返回707
+            textDict[self.imeiCode] = self.imei
 
         self.httpSignal.emit(textDict)  # 发送信号
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     widget = QWidget()
-    widget.resize(640, 480)
+    widget.resize(500, 300)
     widget.setWindowTitle("Hello, PyQt5!")
 
     httpThread = ik42_http(widget, "015693000001169")

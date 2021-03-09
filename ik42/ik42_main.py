@@ -44,7 +44,6 @@ class ik42_main(QWidget):
         self.bgw.setStyleSheet(QSS.background_all)
         # 被轮询的响应体
         self.responceDict = None
-        self.ik42_http = None
 
         # 页面
         self.NORMAL = 1
@@ -83,18 +82,66 @@ class ik42_main(QWidget):
             {"idx": self.LOADING, "elements": [self.wheel, self.cbIMEI, self.btVerify]},  # 等待元素
         ]
 
+        # 初始化线程
+        self.ik42_http = None
+
         # 设置元素属性
         self.setAttr()
         # todo 初始显示元素组
         self.showOrHide(self.NORMAL)
         # todo 测试状态
         self.turnState(self.SUCCESS)
+        # 设置移动初始值
+        self.initMove()
         pass
+
+    """设置移动初始值"""
+    def initMove(self):
+        # 1.加入一个标记位 -- 防止开启了鼠标追踪导致的崩溃, 因为鼠标追踪会先执行 mouseMoveEvent
+        self.isMouseDown = False
+        self.mouse_x = 0
+        self.mouse_y = 0
+        self.window_x = 0
+        self.window_y = 0
+
+    """设置鼠标按下监听"""
+    def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
+        # 判断鼠标按下的是否为左键
+        if a0.button() == Qt.LeftButton:
+            # 1.加入一个标记位 -- 防止开启了鼠标追踪导致的崩溃, 因为鼠标追踪会先执行 mouseMoveEvent
+            self.isMouseDown = True
+            # 2.记录鼠标按下的坐标
+            self.mouse_x = a0.globalX()
+            self.mouse_y = a0.globalY()
+            # 3.记录当前窗口左上角点的坐标
+            self.window_x = self.x()  # 注意这一句不能用globalX, 因为这里的self不是Event对象
+            self.window_y = self.y()  # 注意这一句不能用globalY, 因为这里的self不是Event对象
+
+    """设置鼠标移动监听"""
+    def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
+        # 这里做出按下的判断 -- 只有按下时才去拖动
+        if self.isMouseDown:
+            # 4.获取新的鼠标点
+            move_x = a0.globalX() - self.mouse_x
+            move_y = a0.globalY() - self.mouse_y
+            # 5.计算window需要移动的横纵距离
+            window_new_x = self.window_x + move_x
+            window_new_y = self.window_y + move_y
+            # 6.开始move
+            self.move(window_new_x, window_new_y)
+
+    """设置鼠标释放监听"""
+    def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
+        # 7.当鼠标松开后 -- 恢复标记位
+        self.isMouseDown = False
 
     '''设置指定元素组可见 @idx: 业务需要显示的索引组标号'''
     def showOrHide(self, idx):
         # 对回退键特殊处理
-        self.ivBack.setVisible(idx == self.STATE)
+        if idx == self.STATE:
+            self.ivBack.setVisible(True)
+        else:
+            self.ivBack.setHidden(True)
         # 先隐藏全部
         allWidgets = []
         for widict in self.widgets:
@@ -266,19 +313,28 @@ class ik42_main(QWidget):
     '''发起请求'''
     def send_req(self, loop, imei):
         if loop > 1:
-            self.ik42_http = ik42_http(self, imei)
-            self.ik42_http.httpSignal.connect(lambda resDict: self.anays_statu_code(resDict, imei))
+            # 此处一定要先释放
+            if self.ik42_http is None:
+                self.ik42_http = ik42_http(self, imei)
+                self.ik42_http.httpSignal.connect(lambda resDict: self.anays_statu_code(resDict))
+            else:
+                self.ik42_http.refresh(imei)
+
+            # 启动线程
             self.ik42_http.start()
 
     '''分析状态码'''
-    def anays_statu_code(self, resDict, imei):
+    def anays_statu_code(self, resDict):
         # 得到状态码
         statu_code = resDict[responceCodeField]
+        imei = resDict[imeiCode]
         # 无响应
         if statu_code == 707:
             # 停止等待圈动画 + 连接超时UI
             self.showOrHide(self.STATE)
             self.turnState(self.TIMEOUT)
+            # self.ik42_http.quit()  # 此处一定要退出子线程
+            pass
 
         # 有响应
         elif statu_code == 200:
@@ -286,9 +342,13 @@ class ik42_main(QWidget):
                 # 停止等待圈动画 + 显示成功UI + 缓存IMEI到本地
                 self.showOrHide(self.STATE)
                 self.turnState(self.SUCCESS)
-                webbrowser.open("http://192.168.1.1")
+                webbrowser.open("http://192.168.2.1")
+                # 关闭软件
+                self.btStateOk.setEnabled(False)
+                time.sleep(2)
+                self.exitSys()
             else:
-                self.when200(imei, resDict)
+                self.Ik42_responce(imei, resDict)
 
         else:
             # 停止等待圈动画 + 显示失败UI
@@ -296,7 +356,7 @@ class ik42_main(QWidget):
             self.turnState(self.FAILED)
 
     '''响应码为200时 - 判断FW响应状态'''
-    def when200(self, imei, resDict):
+    def Ik42_responce(self, imei, resDict):
         # 判断状态码
         result = resDict['result']
         if result is not None:  # 正常返回
@@ -316,20 +376,25 @@ class ik42_main(QWidget):
                     else:
                         url = webAddress
                     webbrowser.open(url)
+                    self.ik42_http.quit()
                     # 关闭软件
                     self.btStateOk.setEnabled(False)
-                    time.sleep(3)
+                    time.sleep(2)
                     self.exitSys()
 
                 elif ResultCode == self.FAILED:  # 失败
                     # 停止等待圈动画 + 显示失败UI
                     self.showOrHide(self.STATE)
                     self.turnState(self.FAILED)
+                    # self.ik42_http.quit()  # 此处一定要退出子线程
+                    pass
 
                 else:  # 超时
                     # 停止等待圈动画 + 连接超时UI
                     self.showOrHide(self.STATE)
                     self.turnState(self.TIMEOUT)
+                    # self.ik42_http.quit()  # 此处一定要退出子线程
+                    pass
 
         else:  # 接口错误
             # 停止等待圈动画 + 显示失败UI
