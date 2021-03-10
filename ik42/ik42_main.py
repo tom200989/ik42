@@ -215,14 +215,15 @@ class ik42_main(QWidget):
         self.btStateOk.clicked.connect(lambda: self.click_state(self.btStateOk.text()))
 
         # tvIk42 : LOGO
-        self.tvIK42.setFixedSize(65, 32)
-        self.tvIK42.setText("IK42")
+        self.tvIK42.setFixedSize(150, 32)
+        self.tvIK42.setAlignment(Qt.AlignRight)
+        self.tvIK42.setText("LINK KEY")
         self.tvIK42.setStyleSheet(QSS.tv_ik42_logo)
-        self.tvIK42.move(self.middleHorizotol - self.tvIK42.width() - 10, 50)
+        self.tvIK42.move(self.middleHorizotol - self.tvIK42.width() / 2, 50)
         # ivIK42 : LOGO
-        self.ivIK42.setFixedSize(82, 47)
-        self.ivIK42.setStyleSheet(QSS.iv_ik42_u_pan)
-        self.ivIK42.move(self.middleHorizotol, 50 - (self.ivIK42.height() - self.tvIK42.height()) / 2)
+        # self.ivIK42.setFixedSize(82, 47)
+        # self.ivIK42.setStyleSheet(QSS.iv_ik42_u_pan)
+        # self.ivIK42.move(self.middleHorizotol+50, 50 - (self.ivIK42.height() - self.tvIK42.height()) / 2)
         # cbIMEI : 输入框
         self.cbIMEI.setFixedSize(300, 32)
         self.cbIMEI.setEditable(True)
