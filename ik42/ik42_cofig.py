@@ -2,9 +2,38 @@ import sys, os
 sys.path.append("..")
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
+import platform
 
-imei_dir = 'C:/ik42'
-imei_path = imei_dir + '/ik42.txt'
+# imei_dir = 'C:/ik42'
+# imei_path = imei_dir + '/ik42.txt'
+
+IMEI_ROOT_DIR_WIN = 'C:\\'
+IMEI_ROOT_DIR_XNIX = '\\Applications'
+
+imei_file_dir = 'ik41'
+imei_file_name = 'ik41.txt'
+
+def getpath():
+    """
+    获取imei文件的绝对路径
+    :return: imei文件的绝对路径
+    """
+    if 'Windows' in platform.system():
+        return os.path.join(IMEI_ROOT_DIR_WIN, imei_file_dir, imei_file_name)
+
+    if 'Linux' in platform.system() or 'Unix' in platform.system():
+        return os.path.join(IMEI_ROOT_DIR_XNIX, imei_file_dir, imei_file_name)
+
+def getDir():
+    """
+    获取imei目录的绝对路径
+    :return: imei目录的绝对路径
+    """
+    if 'Windows' in platform.system():
+        return os.path.join(IMEI_ROOT_DIR_WIN, imei_file_dir)
+
+    if 'Linux' in platform.system() or 'Unix' in platform.system():
+        return os.path.join(IMEI_ROOT_DIR_XNIX, imei_file_dir)
 
 '''
 本软件可视化部分采用Qt引擎, 需要遵守以下规则:

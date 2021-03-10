@@ -30,12 +30,12 @@ class ik42_file:
         return imeis
 
     def create_imei(self, path):
-        os.mkdir(imei_dir)
+        os.mkdir(getDir())
         file2 = open(path, "a+")
         file2.write('')
         file2.close()
 
 if __name__ == '__main__':
     ikf = ik42_file()
-    ikf.read_imei(imei_path)
+    ikf.read_imei(getpath())
     pass

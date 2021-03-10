@@ -56,7 +56,7 @@ class ik42_main(QWidget):
         self.TIMEOUT = 2
 
         # 读取IMEI集合
-        self.imeis = ik42_file().read_imei(imei_path)
+        self.imeis = ik42_file().read_imei(getpath())
         self.imeis.reverse()
 
         # 建立元素
@@ -368,7 +368,7 @@ class ik42_main(QWidget):
                     self.turnState(self.SUCCESS)
                     # 保存IMEI到本地
                     if imei not in self.imeis:
-                        ik42_file().write_imei(imei_path, imei)
+                        ik42_file().write_imei(getpath(), imei)
                     # 打开网域
                     webAddress = result['WebAddress']
                     if not 'http' in webAddress:
