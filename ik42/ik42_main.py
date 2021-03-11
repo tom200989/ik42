@@ -426,6 +426,17 @@ class ik42_main(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    page_main = ik42_main()
-    page_main.show()
-    sys.exit(app.exec_())
+    # 防重复开启
+    serverName = 'ik42_server'
+    socket = QLocalSocket()
+    socket.connectToServer(serverName)
+    # 如果连接成功，表明server已经存在，当前已有实例在运行
+    if socket.waitForConnected(500):
+        app.quit()
+    else:
+        localServer = QLocalServer()  # 没有实例运行，创建服务器
+        localServer.listen(serverName)
+        # 展示主界面
+        page_main = ik42_main()
+        page_main.show()
+        sys.exit(app.exec_())
