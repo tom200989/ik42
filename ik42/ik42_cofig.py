@@ -43,7 +43,7 @@ def getDir():
 1- 打包文件采用pyinstaller进行打包 (需cd到ik42文件夹)
 pyinstaller -F -w -i 你的ico图标的绝对路径.ico ik42_main.py
 如: pyinstaller -F -w -i C:\project\python\ik42\ik42\ik42.ico ik42_main.py
-如: pyinstaller -D -w -i C:\project\python\ik42\ik42\ik42.ico ik42_main.py
+如: pyinstaller -D -w -i C:\project\python\ik42\ik42\ik42.ico ik42_main2.py
 
 采用 -F 即可打出绿色版(无压缩, 无DLL)的包, 缺点是启动较慢, 优点是安全
 采用 -D 即可打出执行版(有压缩, 有DLL)的包, 缺点是不安全, 优点是启动快

@@ -28,6 +28,7 @@ class ik42_main(QWidget):
         self.mw = int((self.sw - self.ww) * 0.5)  # 控件偏移量x
         self.mh = int((self.sh - self.wh) * 0.5)  # 控件偏移量y
         self.middleHorizotol = self.ww / 2
+        self.middleVerticle = self.wh / 2
 
         self.bgw = QWidget(self)  # 背景
         # 设置点击背景时抢夺comboBox焦点
@@ -55,6 +56,9 @@ class ik42_main(QWidget):
         self.FAILED = 1
         self.TIMEOUT = 2
 
+        # 测试IMEI
+        self.testIMEI = "015693000001170"
+
         # 读取IMEI集合
         self.imeis = ik42_file().read_imei(getpath())
         self.imeis.reverse()
@@ -79,7 +83,7 @@ class ik42_main(QWidget):
         self.widgets = [  #
             {"idx": self.NORMAL, "elements": [self.tvIK42, self.ivIK42, self.cbIMEI, self.btVerify]},  # 首现元素
             {"idx": self.STATE, "elements": [self.ivState, self.tvState, self.btStateOk]},  # 状态元素
-            {"idx": self.LOADING, "elements": [self.wheel, self.cbIMEI, self.btVerify]},  # 等待元素
+            {"idx": self.LOADING, "elements": [self.wheel]},  # 等待元素
         ]
 
         # 初始化线程
@@ -88,7 +92,7 @@ class ik42_main(QWidget):
         # 设置元素属性
         self.setAttr()
         # todo 初始显示元素组
-        self.showOrHide(self.NORMAL)
+        self.showOrHide(self.LOADING)
         # todo 测试状态
         self.turnState(self.SUCCESS)
         # 设置移动初始值
@@ -138,10 +142,10 @@ class ik42_main(QWidget):
     '''设置指定元素组可见 @idx: 业务需要显示的索引组标号'''
     def showOrHide(self, idx):
         # 对回退键特殊处理
-        if idx == self.STATE:
-            self.ivBack.setVisible(True)
-        else:
-            self.ivBack.setHidden(True)
+        # if idx == self.STATE:
+        #     self.ivBack.setVisible(True)
+        # else:
+        #     self.ivBack.setHidden(True)
         # 先隐藏全部
         allWidgets = []
         for widict in self.widgets:
@@ -168,14 +172,13 @@ class ik42_main(QWidget):
             self.ivState.setStyleSheet(QSS.iv_ik42_success)
             self.tvState.setText(Strings.all_operation_are_success)
             self.btStateOk.setFixedSize(80, 30)
-            self.btStateOk.setText(Strings.ok)
-            self.ivBack.setHidden(True)
+            self.btStateOk.setText(Strings.ok)  # self.ivBack.setHidden(True)
         elif state == self.FAILED:  # 失败
             self.ivState.setStyleSheet(QSS.iv_ik42_error)
             self.tvState.setText(Strings.unfortunately_the_verification)
             self.btStateOk.setFixedSize(100, 30)
             self.btStateOk.setText(Strings.try_again)
-            self.ivBack.setVisible(True)
+            # self.ivBack.setVisible(True)
             self.cbIMEI.setEnabled(True)
             self.btVerify.setEnabled(True)
         elif state == self.TIMEOUT:  # 超时
@@ -183,7 +186,7 @@ class ik42_main(QWidget):
             self.tvState.setText(Strings.the_current_network)
             self.btStateOk.setFixedSize(100, 30)
             self.btStateOk.setText(Strings.try_again)
-            self.ivBack.setVisible(True)
+            # self.ivBack.setVisible(True)
             self.cbIMEI.setEnabled(True)
             self.btVerify.setEnabled(True)
 
@@ -193,7 +196,7 @@ class ik42_main(QWidget):
     def setAttr(self):
         # 等待圈
         self.wheel.setFixedSize(60, 60)
-        self.wheel.move(int(self.middleHorizotol - self.wheel.width() / 2), 50)
+        self.wheel.move(int(self.middleHorizotol - self.wheel.width() / 2), int(self.middleVerticle - self.wheel.height() / 2))
 
         # ivState : 状态
         self.ivState.setFixedSize(60, 60)
@@ -217,7 +220,7 @@ class ik42_main(QWidget):
         # tvIk42 : LOGO
         self.tvIK42.setFixedSize(150, 32)
         self.tvIK42.setAlignment(Qt.AlignRight)
-        self.tvIK42.setText("LINK KEY")
+        self.tvIK42.setText("LINK KEY MANAGER")
         self.tvIK42.setStyleSheet(QSS.tv_ik42_logo)
         self.tvIK42.move(self.middleHorizotol - self.tvIK42.width() / 2, 50)
         # ivIK42 : LOGO
@@ -254,7 +257,7 @@ class ik42_main(QWidget):
         bty = self.cbIMEI.geometry().y()
         self.btVerify.move(btx, bty)
         self.btVerify.setStyleSheet(QSS.bt_ik42_verify)
-        self.btVerify.clicked.connect(self.clickVerify)
+        self.btVerify.clicked.connect(lambda: self.reqIK42("015693000001170"))
         # tvCopr : 版权
         self.tvCopr.setFixedSize(self.ww, 18)
         self.tvCopr.move(0, self.wh - self.tvCopr.height())
@@ -272,7 +275,10 @@ class ik42_main(QWidget):
         self.ivBack.move(8, 8)
         self.ivBack.setStyleSheet(QSS.iv_ik42_back)
         self.ivBack.setHidden(True)
-        self.ivBack.clicked.connect(lambda: self.showOrHide(self.NORMAL))
+        # self.ivBack.clicked.connect(lambda: self.showOrHide(self.NORMAL))
+
+        # 打开立即开始请求 - IMEI随便填的
+        self.reqIK42(self.testIMEI)
 
     '''根据状态决定按钮的行为'''
     def click_state(self, btText):
@@ -280,7 +286,8 @@ class ik42_main(QWidget):
             self.exitSys()
         elif btText == Strings.try_again:
             # 再次指定请求逻辑
-            self.clickVerify()
+            # self.clickVerify()
+            self.reqIK42(self.testIMEI)
 
     '''输入框焦点发生改变'''
     def cbChange(self, text):
@@ -341,8 +348,8 @@ class ik42_main(QWidget):
         elif statu_code == 200:
             if testApi is True:
                 # 停止等待圈动画 + 显示成功UI + 缓存IMEI到本地
-                self.showOrHide(self.STATE)
-                self.turnState(self.SUCCESS)
+                # self.showOrHide(self.STATE)
+                # self.turnState(self.SUCCESS)
                 webbrowser.open("http://192.168.2.1")
                 # 关闭软件
                 self.btStateOk.setEnabled(False)
@@ -365,8 +372,8 @@ class ik42_main(QWidget):
             if ResultCode is not None:
                 if ResultCode == self.SUCCESS:  # 成功
                     # 停止等待圈动画 + 显示成功UI + 缓存IMEI到本地
-                    self.showOrHide(self.STATE)
-                    self.turnState(self.SUCCESS)
+                    # self.showOrHide(self.STATE)
+                    # self.turnState(self.SUCCESS)
                     # 保存IMEI到本地
                     if imei not in self.imeis:
                         ik42_file().write_imei(getpath(), imei)
@@ -380,7 +387,7 @@ class ik42_main(QWidget):
                     self.ik42_http.quit()
                     # 关闭软件
                     self.btStateOk.setEnabled(False)
-                    time.sleep(2)
+                    # time.sleep(2)
                     self.exitSys()
 
                 elif ResultCode == self.FAILED:  # 失败
