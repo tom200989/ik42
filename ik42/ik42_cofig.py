@@ -22,7 +22,7 @@ def getpath():
     if 'Windows' in platform.system():
         return os.path.join(IMEI_ROOT_DIR_WIN, imei_file_dir, imei_file_name)
 
-    if 'Linux' in platform.system() or 'Unix' in platform.system():
+    if 'Darwin' in platform.system() or 'Linux' in platform.system() or 'Unix' in platform.system():
         return os.path.join(IMEI_ROOT_DIR_XNIX, imei_file_dir, imei_file_name)
 
 def getDir():
@@ -33,7 +33,7 @@ def getDir():
     if 'Windows' in platform.system():
         return os.path.join(IMEI_ROOT_DIR_WIN, imei_file_dir)
 
-    if 'Linux' in platform.system() or 'Unix' in platform.system():
+    if 'Darwin' in platform.system() or 'Linux' in platform.system() or 'Unix' in platform.system():
         return os.path.join(IMEI_ROOT_DIR_XNIX, imei_file_dir)
 
 def getLanguage():
@@ -44,7 +44,7 @@ def getLanguage():
     if 'Windows' in platform.system():
         return locale.getdefaultlocale()[0]
 
-    if 'Linux' in platform.system() or 'Unix' in platform.system():
+    if 'Darwin' in platform.system() or 'Linux' in platform.system() or 'Unix' in platform.system():
         return os.getenv('LANG')
 
 '''
