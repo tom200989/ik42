@@ -23,6 +23,8 @@ class Strings:  # 类名不要以下划线开头
             self.translation(String_es.ES_TR)
         elif 'en' in local:
             self.translation(String_en.EN_TR)
+        elif 'zh' in local:
+            self.translation(String_en.EN_TR)
 
     """翻译"""
     def translation(self, language_dict):
