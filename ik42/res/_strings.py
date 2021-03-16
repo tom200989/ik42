@@ -1,6 +1,10 @@
-import locale
+import sys, os
+sys.path.append("..")
+if hasattr(sys, 'frozen'):
+    os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 from ik42.res._string_en import *
 from ik42.res._string_es import *
+from ik42.ik42_cofig import *
 
 class Strings:  # 类名不要以下划线开头
 
@@ -18,7 +22,7 @@ class Strings:  # 类名不要以下划线开头
         self.unfortunately_the_verification = ""
 
         # 获取本地系统语言
-        local = locale.getdefaultlocale()[0]
+        local = getLanguage()
         if 'es' in local:
             self.translation(String_es.ES_TR)
         elif 'en' in local:

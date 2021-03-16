@@ -1,3 +1,8 @@
+import sys, os
+sys.path.append("..")
+if hasattr(sys, 'frozen'):
+    os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
+
 class String_en:
     EN_TR = {  #
         'test_name': "test_name",  #

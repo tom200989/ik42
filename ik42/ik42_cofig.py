@@ -3,6 +3,7 @@ sys.path.append("..")
 if hasattr(sys, 'frozen'):
     os.environ['PATH'] = sys._MEIPASS + ";" + os.environ['PATH']
 import platform
+import locale
 
 # imei_dir = 'C:/ik42'
 # imei_path = imei_dir + '/ik42.txt'
@@ -34,6 +35,17 @@ def getDir():
 
     if 'Linux' in platform.system() or 'Unix' in platform.system():
         return os.path.join(IMEI_ROOT_DIR_XNIX, imei_file_dir)
+
+def getLanguage():
+    """
+    获取系统语言
+    :return: 系统语言
+    """
+    if 'Windows' in platform.system():
+        return locale.getdefaultlocale()[0]
+
+    if 'Linux' in platform.system() or 'Unix' in platform.system():
+        return os.getenv('LANG')
 
 '''
 本软件可视化部分采用Qt引擎, 需要遵守以下规则:

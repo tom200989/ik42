@@ -15,14 +15,13 @@ from ik42.ik42_file import *
 from ik42.ik42_cofig import *
 # import webbrowser
 import time
-import locale
 
 class ik42_main(QWidget):
 
     def __init__(self):
         super().__init__()
         # 获取本地系统语言
-        self.local = locale.getdefaultlocale()[0]
+        self.local = getLanguage()
         # 初始化控件
         self.desktop = QApplication.desktop()  # 桌面对象
         self.sw = ik42_utils.getScreenSize()[0]  # 桌面宽
