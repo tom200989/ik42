@@ -73,7 +73,7 @@ class ik42_main(QWidget):
         self.tvState = QLabel(self)
         self.btStateOk = QPushButton(self)
 
-        self.wheel = Wheel(3, self)
+        self.wheel = Wheel(2, self)
 
         # 分组
         self.widgets = [  #
@@ -166,23 +166,23 @@ class ik42_main(QWidget):
     def turnState(self, state):
         if state == self.SUCCESS:  # 成功
             self.ivState.setStyleSheet(QSS.iv_ik42_success)
-            self.tvState.setText(Strings.all_operation_are_success)
+            self.tvState.setText(Strings().all_operation_are_success)
             self.btStateOk.setFixedSize(80, 30)
-            self.btStateOk.setText(Strings.ok)
+            self.btStateOk.setText(Strings().ok)
             self.ivBack.setHidden(True)
         elif state == self.FAILED:  # 失败
             self.ivState.setStyleSheet(QSS.iv_ik42_error)
-            self.tvState.setText(Strings.unfortunately_the_verification)
+            self.tvState.setText(Strings().unfortunately_the_verification)
             self.btStateOk.setFixedSize(100, 30)
-            self.btStateOk.setText(Strings.try_again)
+            self.btStateOk.setText(Strings().try_again)
             self.ivBack.setVisible(True)
             self.cbIMEI.setEnabled(True)
             self.btVerify.setEnabled(True)
         elif state == self.TIMEOUT:  # 超时
             self.ivState.setStyleSheet(QSS.iv_ik42_timeout)
-            self.tvState.setText(Strings.the_current_network)
+            self.tvState.setText(Strings().the_current_network)
             self.btStateOk.setFixedSize(100, 30)
-            self.btStateOk.setText(Strings.try_again)
+            self.btStateOk.setText(Strings().try_again)
             self.ivBack.setVisible(True)
             self.cbIMEI.setEnabled(True)
             self.btVerify.setEnabled(True)
@@ -205,12 +205,12 @@ class ik42_main(QWidget):
         self.tvState.setAlignment(Qt.AlignCenter)
         self.tvState.setStyleSheet(QSS.tv_ik42_state)
         self.tvState.move(0, self.ivState.geometry().y() + self.tvState.height() + 10)
-        self.tvState.setText(Strings.all_operation_are_success)
+        self.tvState.setText(Strings().all_operation_are_success)
 
         # tvStateOK
         self.btStateOk.setFixedSize(80, 30)
         self.btStateOk.setStyleSheet(QSS.bt_ik42_ok_try_again)
-        self.btStateOk.setText(Strings.ok)
+        self.btStateOk.setText(Strings().ok)
         self.btStateOk.move(self.middleHorizotol - self.btStateOk.width() / 2, self.tvState.geometry().y() + self.tvState.height() + 10)
         self.btStateOk.clicked.connect(lambda: self.click_state(self.btStateOk.text()))
 
@@ -232,7 +232,7 @@ class ik42_main(QWidget):
         self.cbIMEI.setMaxVisibleItems(5)
         self.cbIMEI.lineEdit().setMaxLength(15)
         self.cbIMEI.lineEdit().setAlignment(Qt.AlignCenter)
-        self.cbIMEI.lineEdit().setPlaceholderText(Strings.please_input_your_15)
+        self.cbIMEI.lineEdit().setPlaceholderText(Strings().please_input_your_15)
         self.cbIMEI.editTextChanged.connect(lambda text: self.cbChange(text))
         self.cbIMEI.setValidator(QRegExpValidator(QRegExp("[0-9]+$")))
         if len(self.imeis) == 0:
@@ -247,7 +247,7 @@ class ik42_main(QWidget):
         self.tvTip.setStyleSheet(QSS.tv_ik42_tip)
         self.tvTip.move(self.cbIMEI.geometry().x(), self.cbIMEI.geometry().y() + self.cbIMEI.height() + 5)
         self.tvTip.setAlignment(Qt.AlignCenter)
-        self.tvTip.setText(Strings.you_must_provide)
+        self.tvTip.setText(Strings().you_must_provide)
         # btVerify : 认证按钮(点击)
         self.btVerify.setFixedSize(32, 32)
         btx = self.cbIMEI.geometry().x() + self.cbIMEI.width() + 10
@@ -259,7 +259,7 @@ class ik42_main(QWidget):
         self.tvCopr.setFixedSize(self.ww, 18)
         self.tvCopr.move(0, self.wh - self.tvCopr.height())
         self.tvCopr.setAlignment(Qt.AlignCenter)
-        self.tvCopr.setText(Strings.copr_tcl_all_rights)
+        self.tvCopr.setText(Strings().copr_tcl_all_rights)
         self.tvCopr.setStyleSheet(QSS.tv_ik42_copr)
         # tvClose : 关闭
         self.tvClose.setFixedSize(32, 32)
@@ -276,9 +276,9 @@ class ik42_main(QWidget):
 
     '''根据状态决定按钮的行为'''
     def click_state(self, btText):
-        if btText == Strings.ok:
+        if btText == Strings().ok:
             self.exitSys()
-        elif btText == Strings.try_again:
+        elif btText == Strings().try_again:
             # 再次指定请求逻辑
             self.clickVerify()
 
@@ -293,10 +293,10 @@ class ik42_main(QWidget):
         cbText = self.cbIMEI.currentText()
         if cbText is None or cbText == "":
             self.tvTip.setVisible(True)
-            self.tvTip.setText(Strings.you_must_provide)
+            self.tvTip.setText(Strings().you_must_provide)
         elif len(cbText) < 15:
             self.tvTip.setVisible(True)
-            self.tvTip.setText(Strings.digit_imei_is_required)
+            self.tvTip.setText(Strings().digit_imei_is_required)
         else:
             self.tvTip.setHidden(True)
             self.cbIMEI.setEnabled(False)
