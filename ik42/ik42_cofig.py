@@ -42,10 +42,26 @@ def getLanguage():
     :return: 系统语言
     """
     if 'Windows' in platform.system():
-        return locale.getdefaultlocale()[0]
+        # return locale.getdefaultlocale()[0] # 这是跟随系统的做法(保留)
+        # 以下这种方法的前提是在inno setup打包时, 要执行脚本在本地指定路径生成一个文件并记录用户在安装时选择的值
+        try:
+            info_path = os.path.join(IMEI_ROOT_DIR_WIN, "TCL_LINK", "language.info")
+            language = open(info_path, 'r').read()
+            print('当前获取结果 = ', language)
+            if 'english' in language:  # 区域转简写
+                return 'en'
+            if 'spanish' in language:  # 区域转简写
+                return 'es'
+            return 'en'
+        except Exception as error:  # 如果出错就默认英语
+            print(error)
+            return "en"
 
     if 'Darwin' in platform.system() or 'Linux' in platform.system() or 'Unix' in platform.system():
         return os.getenv('LANG')
+
+if __name__ == '__main__':
+    print(getLanguage())
 
 '''
 本软件可视化部分采用Qt引擎, 需要遵守以下规则:
@@ -56,6 +72,7 @@ def getLanguage():
 pyinstaller -F -w -i 你的ico图标的绝对路径.ico ik42_main.py
 如: pyinstaller -F -w -i C:\project\python\ik42\ik42\ik42.ico ik42_main.py
 如: pyinstaller -D -w -i C:\project\python\ik42\ik42\ik42.ico ik42_main2.py
+如: pyinstaller -D -c -i C:\project\python\ik42\ik42\ik42.ico ik42_main2.py
 
 采用 -F 即可打出绿色版(无压缩, 无DLL)的包, 缺点是启动较慢, 优点是安全
 采用 -D 即可打出执行版(有压缩, 有DLL)的包, 缺点是不安全, 优点是启动快
